@@ -65,6 +65,7 @@ private struct Neighbours {
     fileprivate var currentSize = 0
     fileprivate var full: Bool = false
     var biggestDistance: Double = Double.infinity
+    var maxDistance: Double = 0
     
     init(goalNumber: Int) {
         nearestValues.reserveCapacity(goalNumber)
@@ -72,8 +73,8 @@ private struct Neighbours {
     }
     
     mutating func append(_ value: Any, distance: Double) {
-        guard !full || distance < biggestDistance else { return }
-
+        guard (!full || distance < biggestDistance) && distance < maxDistance else { return }
+        
         if let index = nearestValues.index(where: { return distance < $0.distance }) {
             nearestValues.insert(ElementPair(distance: distance, point: value), at: index)
             if full {
@@ -102,8 +103,9 @@ extension KDTree {
     /// Returns the k nearest `KDTreePoint`s to the search point,
     ///
     /// - Complexity: O(log N).
-    public func nearestK(_ number: Int, to searchElement: Element) -> [Element] {
+    public func nearestK(_ number: Int, to searchElement: Element, maxDistance distance: Double = Double.infinity) -> [Element] {
         var neighbours: Neighbours = Neighbours(goalNumber: number)
+        neighbours.maxDistance = distance
         self.nearestK(to: searchElement, bestValues: &neighbours)
         return neighbours.nearestValues.map { $0.point as! Element }
     }

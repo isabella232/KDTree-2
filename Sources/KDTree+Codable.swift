@@ -134,20 +134,12 @@ extension KDTree: Decodable /* where Element : Decodable */ {
 
 extension KDTree {
     public func save(to path: URL) throws {
-#if os(Linux)
-    let data = try JSONEncoder().encode(self)
-#else
-    let data = try PropertyListEncoder().encode(self)
-#endif
+        let data = try PropertyListEncoder().encode(self)
         try data.write(to: path, options: Data.WritingOptions.atomic)
     }
     
     public init(contentsOf path: URL) throws {
         let data = try Data(contentsOf: path)
-#if os(Linux)
-    self = try JSONDecoder().decode(KDTree<Element>.self, from: data)
-#else
-    self = try PropertyListDecoder().decode(KDTree<Element>.self, from: data)
-#endif
+        self = try PropertyListDecoder().decode(KDTree<Element>.self, from: data)
     }
 }
